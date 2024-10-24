@@ -3,12 +3,22 @@ package imagemagick
 import (
 	"convert/internal/config"
 	"convert/internal/models"
+	"errors"
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"gopkg.in/gographics/imagick.v3/imagick"
 )
 
 func (m *MagickManager) ConvertImageFormat(args models.ConvertImageFormatArgs) error {
+	if args.InputFile == "" {
+		return errors.New("input file is required")
+	}
+	if args.Format == "" {
+		return errors.New("output format is required")
+	}
+
 	mw := imagick.NewMagickWand()
 	defer mw.Destroy()
 
@@ -25,10 +35,12 @@ func (m *MagickManager) ConvertImageFormat(args models.ConvertImageFormatArgs) e
 		return fmt.Errorf("failed to set image format: %w", err)
 	}
 
-	if err := mw.WriteImage(config.ImageDir); err != nil {
+	baseName := strings.TrimSuffix(filepath.Base(args.InputFile), filepath.Ext(args.InputFile))
+	outputPath := filepath.Join(config.ImageDir, baseName+"."+args.Format)
+
+	if err := mw.WriteImage(outputPath); err != nil {
 		return fmt.Errorf("failed to write image: %w", err)
 	}
 
-	fmt.Println("Image converted successfully")
 	return nil
 }

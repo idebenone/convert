@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 )
 
@@ -15,16 +16,32 @@ type ImageConfig struct {
 var configInstance *ImageConfig
 var once sync.Once
 
-var configFilePath = "./../config.json"
+func getConfigFilePath() (string, error) {
+	execPath, err := os.Executable()
+	if err != nil {
+		return "", fmt.Errorf("failed to get executable path: %v", err)
+	}
+	execDir := filepath.Dir(execPath)
+	configPath := filepath.Join(execDir, "config.json")
+	fmt.Println("Config file path:", configPath)
+	return configPath, nil
+}
 
 func LoadConfig() (*ImageConfig, error) {
+	var loadErr error
 	once.Do(func() {
+		configFilePath, err := getConfigFilePath()
+		if err != nil {
+			loadErr = fmt.Errorf("error determining config file path: %v", err)
+			return
+		}
+
 		file, err := os.Open(configFilePath)
 		if err != nil {
 			if os.IsNotExist(err) {
 				configInstance = &ImageConfig{}
 			} else {
-				fmt.Printf("Error opening config file: %v\n", err)
+				loadErr = fmt.Errorf("error opening config file: %v", err)
 				return
 			}
 		} else {
@@ -33,15 +50,32 @@ func LoadConfig() (*ImageConfig, error) {
 
 			err = json.Unmarshal(byteValue, &configInstance)
 			if err != nil {
-				fmt.Printf("Error parsing config file: %v\n", err)
+				loadErr = fmt.Errorf("error parsing config file: %v", err)
 				return
 			}
 		}
 	})
+
+	if loadErr != nil {
+		return nil, loadErr
+	}
+
 	return configInstance, nil
 }
 
 func (c *ImageConfig) SaveConfig() error {
+	configFilePath, err := getConfigFilePath()
+	if err != nil {
+		return fmt.Errorf("error determining config file path: %v", err)
+	}
+
+	dir := filepath.Dir(configFilePath)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("error creating config directory: %v", err)
+		}
+	}
+
 	file, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return fmt.Errorf("error marshaling config: %v", err)

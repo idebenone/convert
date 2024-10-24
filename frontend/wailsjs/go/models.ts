@@ -1,8 +1,8 @@
-export namespace struct { InputFile string; Format string } {
+export namespace struct { InputFile string "json:\"input_file\""; Format string "json:\"format\"" } {
 	
 	export class  {
-	    InputFile: string;
-	    Format: string;
+	    input_file: string;
+	    format: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new (source);
@@ -10,8 +10,8 @@ export namespace struct { InputFile string; Format string } {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.InputFile = source["InputFile"];
-	        this.Format = source["Format"];
+	        this.input_file = source["input_file"];
+	        this.format = source["format"];
 	    }
 	}
 

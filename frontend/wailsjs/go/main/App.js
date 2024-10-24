@@ -5,3 +5,7 @@
 export function ConvertImageFormat(arg1) {
   return window['go']['main']['App']['ConvertImageFormat'](arg1);
 }
+
+export function OpenFileDialog() {
+  return window['go']['main']['App']['OpenFileDialog']();
+}

@@ -15,11 +15,11 @@ func NewExposeAPI() *ExposeAPI {
 	return &ExposeAPI{manager: manager}
 }
 
-func (api *ExposeAPI) ConvertImageFormat(args models.ConvertImageFormatArgs) string {
+func (api *ExposeAPI) ConvertImageFormat(args models.ConvertImageFormatArgs) (string, error) {
 	err := api.manager.ConvertImageFormat(args)
 	if err != nil {
 		log.Printf("Failed to convert image: %v", err)
-		return "Conversion failed: " + err.Error()
+		return "Conversion failed", err
 	}
-	return "Image converted successfully"
+	return "Image converted successfully", nil
 }

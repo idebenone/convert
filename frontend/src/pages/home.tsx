@@ -1,5 +1,4 @@
 import ConvertImage from "@/components/convert-image";
-// import { ConvertImageFormat } from "../wailsjs/go/main/App";
 
 export default function Home() {
   return (
