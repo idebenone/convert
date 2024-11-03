@@ -2,8 +2,12 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./style.css";
-import Home from "./pages/home";
-import { Toaster } from "@/components/ui/sonner";
+
+import { ThemeProvider } from "./components/providers/theme-provider";
+import ImageScreen from "./screens/image";
+import VideoScreen from "./screens/video";
+import SettingsScreen from "./screens/settings";
+import App from "./App";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
@@ -11,13 +15,28 @@ const root = createRoot(container!);
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <App />,
+    children: [
+      {
+        path: "/",
+        element: <ImageScreen />,
+      },
+      {
+        path: "/video",
+        element: <VideoScreen />,
+      },
+      {
+        path: "/settings",
+        element: <SettingsScreen />,
+      },
+    ],
   },
 ]);
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
-    <Toaster />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );

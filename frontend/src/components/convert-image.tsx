@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 
 import { ConvertImageFormat, OpenFileDialog } from "../../wailsjs/go/main/App";
 import { Button } from "./ui/button";
@@ -29,12 +29,16 @@ export default function ConvertImage() {
     setFormat(e);
   }
 
-  function handleConvertImage() {
-    if (selectedFile && format) {
-      ConvertImageFormat({
-        input_file: selectedFile,
-        format,
-      }).then((response) => toast(response));
+  async function handleConvertImage() {
+    try {
+      if (selectedFile && format) {
+        const response = await ConvertImageFormat(selectedFile, format);
+        toast(response);
+      } else {
+        toast("Please select valid a image or format!");
+      }
+    } catch (error) {
+      toast("Sommething went wrong while converting image!");
     }
   }
 

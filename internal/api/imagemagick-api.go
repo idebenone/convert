@@ -3,7 +3,6 @@ package api
 import (
 	"convert/internal/models"
 	"convert/pkg/imagemagick"
-	"log"
 )
 
 type ExposeAPI struct {
@@ -18,8 +17,16 @@ func NewExposeAPI() *ExposeAPI {
 func (api *ExposeAPI) ConvertImageFormat(args models.ConvertImageFormatArgs) (string, error) {
 	err := api.manager.ConvertImageFormat(args)
 	if err != nil {
-		log.Printf("Failed to convert image: %v", err)
 		return "Conversion failed", err
 	}
 	return "Image converted successfully", nil
+}
+
+func (api *ExposeAPI) ReadImages() (string, error) {
+	images, err := api.manager.ReadImagesAsBase64()
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return images, nil
 }

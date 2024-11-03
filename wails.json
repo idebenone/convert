@@ -1,12 +1,21 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "convert",
-  "outputfilename": "client",
+  "outputfilename": "convert",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
-  "assetdir": "./assets",
+  "postBuildHooks": {
+    "*/*": "powershell -Command \"Copy-Item -Path ../../config.json -Destination build/\""
+  },
+  "info": {
+    "companyName": "dot product",
+    "productName": "convert",
+    "productVersion": "0.0.0.1",
+    "copyright": "Copyright @dot_product",
+    "comments": "Built using Wails (https://wails.io)"
+  },
   "author": {
     "name": "Vineeth",
     "email": "vineeth.v.gooli@gmail.com"

@@ -95,6 +95,12 @@ Section
     !insertmacro wails.associateCustomProtocols
 
     !insertmacro wails.writeUninstaller
+
+    FileOpen $0 "$INSTDIR\config.json" "w"
+    FileWrite $0 "{$\r$\n"
+    FileWrite $0 "$\t'image_dir' : 'D:\\convert_temp',$\r$\n"
+    FileWrite $0 "}"
+    FileClose $0
 SectionEnd
 
 Section "uninstall"

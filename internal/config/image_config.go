@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/joho/godotenv"
 )
 
 type ImageConfig struct {
@@ -17,13 +19,25 @@ var configInstance *ImageConfig
 var once sync.Once
 
 func getConfigFilePath() (string, error) {
-	execPath, err := os.Executable()
-	if err != nil {
-		return "", fmt.Errorf("failed to get executable path: %v", err)
+	_ = godotenv.Load(".env")
+	env := os.Getenv("APP_ENV")
+
+	var configPath string
+
+	if env == "development" {
+		configPath = filepath.Join(".", "config.json")
+	} else {
+		execPath, err := os.Executable()
+
+		if err != nil {
+			return "", fmt.Errorf("failed to get user config directory: %v", err)
+		}
+
+		execDir := filepath.Dir(execPath)
+		configPath = filepath.Join(execDir, "config.json")
 	}
-	execDir := filepath.Dir(execPath)
-	configPath := filepath.Join(execDir, "config.json")
-	fmt.Println("Config file path:", configPath)
+
+	fmt.Println("config file path: ", configPath)
 	return configPath, nil
 }
 
