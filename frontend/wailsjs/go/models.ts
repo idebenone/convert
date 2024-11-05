@@ -15,3 +15,22 @@ export namespace config {
 
 }
 
+export namespace main {
+	
+	export class FileData {
+	    filePath: string;
+	    dataURL: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FileData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.filePath = source["filePath"];
+	        this.dataURL = source["dataURL"];
+	    }
+	}
+
+}
+

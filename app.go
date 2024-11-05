@@ -6,7 +6,11 @@ import (
 	"convert/internal/config"
 	"convert/internal/models"
 	"convert/pkg/watcher"
+	"encoding/base64"
 	"fmt"
+	"mime"
+	"os"
+	"path/filepath"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -15,6 +19,11 @@ import (
 type App struct {
 	ctx       context.Context
 	magickAPI *api.ExposeAPI
+}
+
+type FileData struct {
+	FilePath string `json:"filePath"`
+	DataURL  string `json:"dataURL"`
 }
 
 // NewApp creates a new App application struct
@@ -28,10 +37,17 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	watcher.StartWatcher()
+	fileEvents := make(chan string)
+	watcher.StartWatcher(a.ctx, fileEvents)
+
+	go func() {
+		for fileName := range fileEvents {
+			runtime.EventsEmit(a.ctx, "file-created", fileName)
+		}
+	}()
 }
 
-func (a *App) OpenFileDialog() (string, error) {
+func (a *App) OpenFileDialog() (*FileData, error) {
 	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		DefaultDirectory: "C:\\",
 		Title:            "Select Image",
@@ -43,9 +59,25 @@ func (a *App) OpenFileDialog() (string, error) {
 		},
 	})
 	if err != nil {
-		return "", fmt.Errorf("failed opening dialog - %s", err.Error())
+		return nil, fmt.Errorf("failed opening dialog - %s", err.Error())
 	}
-	return file, nil
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file - %s", err.Error())
+	}
+	encoded := base64.StdEncoding.EncodeToString(data)
+	ext := filepath.Ext(file)
+	mimeType := mime.TypeByExtension(ext)
+	if mimeType == "" {
+		mimeType = "application/octet-stream"
+	}
+
+	dataURL := fmt.Sprintf("data:%s;base64,%s", mimeType, encoded)
+
+	return &FileData{
+		FilePath: file,
+		DataURL:  dataURL,
+	}, nil
 }
 
 func (a *App) OpenDirectoryDialog() (string, error) {

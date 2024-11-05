@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ReadFiles } from "../../wailsjs/go/main/App";
+import { EventsOff, EventsOn } from "../../wailsjs/runtime";
 
 export function ReadImages() {
   const [images, setImages] = useState<
@@ -22,6 +23,14 @@ export function ReadImages() {
 
   useEffect(() => {
     handleReadFiles();
+  }, []);
+
+  useEffect(() => {
+    EventsOn("file-created", (fileName) => {
+      handleReadFiles();
+    });
+
+    return () => EventsOff("file-created");
   }, []);
 
   return (

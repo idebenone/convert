@@ -1,14 +1,16 @@
 package watcher
 
 import (
+	"context"
 	"convert/internal/config"
 	"fmt"
 	"log"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func StartWatcher() {
+func StartWatcher(ctx context.Context, events chan<- string) {
 	config, err := config.LoadConfig()
 	if err != nil {
 		fmt.Printf("failed to load config file: %w", err)
@@ -29,7 +31,7 @@ func StartWatcher() {
 				}
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					fmt.Println("New file created:", event.Name)
-					readFiles(event.Name)
+					runtime.EventsEmit(ctx, "file-created", event.Name)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -44,8 +46,4 @@ func StartWatcher() {
 		log.Fatal(err)
 	}
 	<-make(chan struct{})
-}
-
-func readFiles(filePath string) {
-	fmt.Printf("Files Changed")
 }
