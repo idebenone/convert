@@ -1,16 +1,17 @@
-import ConvertImage from "@/components/convert-image";
 import { ReadImages } from "@/components/read-images";
-import { useState } from "react";
+import { Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function ImageScreen() {
-  const [dialogState, setDialogState] = useState<boolean>(false);
   return (
-    <div>
-      <ConvertImage
-        dialogState={dialogState}
-        setDtialogState={() => setDialogState(!dialogState)}
-      />
+    <div className="relative h-full">
       <ReadImages />
+
+      <Link to="/edit">
+        <div className="rounded-full p-3 absolute bottom-4 right-4 cursor-pointer bg-primary">
+          <Pencil className="h-4 w-4 text-secondary" />
+        </div>
+      </Link>
     </div>
   );
 }
